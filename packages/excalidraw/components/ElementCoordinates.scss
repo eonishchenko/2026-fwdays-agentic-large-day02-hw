@@ -1,0 +1,39 @@
+.element-coordinates {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+
+  &--inline {
+    gap: 0;
+  }
+
+  &__pair {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+  }
+
+  &__label {
+    font-weight: 600;
+    opacity: 0.85;
+  }
+
+  &__value {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /** Variant B: compact single-line coordinates (display name: ElementCoordinatesV-B). */
+  &--vb {
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    font-size: 11px;
+
+    .element-coordinates__pair {
+      gap: 0.2rem;
+    }
+  }
+}

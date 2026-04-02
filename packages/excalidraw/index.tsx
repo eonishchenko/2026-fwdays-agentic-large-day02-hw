@@ -354,6 +354,15 @@ export {
 export { WelcomeScreen };
 export { LiveCollaborationTrigger };
 export { Stats } from "./components/Stats";
+export {
+  ElementCoordinates,
+  getElementCoordinatesForDisplay,
+  getSelectionCoordinatesForDisplay,
+} from "./components/ElementCoordinates";
+export type { ElementCoordinatesProps } from "./components/ElementCoordinates";
+
+export { ElementCoordinatesVB } from "./components/ElementCoordinatesVB";
+export type { ElementCoordinatesVBProps } from "./components/ElementCoordinatesVB";
 
 export { DefaultSidebar } from "./components/DefaultSidebar";
 export { TTDDialog } from "./components/TTDDialog/TTDDialog";
