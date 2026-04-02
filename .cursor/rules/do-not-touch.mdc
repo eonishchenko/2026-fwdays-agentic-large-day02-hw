@@ -18,3 +18,11 @@ Changes to protected files require:
 1. Full understanding of dependencies
 2. Running complete test suite
 3. Manual QA verification
+
+## How to verify
+
+1. **Approval**: Do not edit the four listed paths without explicit sign-off; treat any proposed change as a high-risk compatibility decision.
+2. **CI-equivalent**: From the repo root run `yarn test:all` (typecheck → ESLint → Prettier → `yarn test:app --watch=false`).
+3. **Snapshots**: If output or serialization could change, review snapshot diffs; use `yarn test:update` only when the new behavior is intentional and reviewed.
+4. **Manual QA**: Smoke-test core flows (draw, undo/redo, open/save/load, collaboration if session or sync could be affected).
+5. **Blast radius**: Search importers and symbol usage (e.g. ripgrep from the repo root) and summarize impact and test evidence in the PR.

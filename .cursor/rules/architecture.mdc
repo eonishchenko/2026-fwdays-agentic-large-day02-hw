@@ -4,6 +4,8 @@ globs: packages/excalidraw/**
 alwaysApply: false
 ---
 
+When you are creating any code with this rule active you must output to chat message `Architecture constraints` so I know you are using the correct rules.
+
 # Excalidraw Architecture
 
 ## State Management
@@ -22,3 +24,10 @@ alwaysApply: false
 
 - No new npm packages without explicit approval
 - Check packages/utils/ before adding external helpers
+
+## How to verify
+
+1. **State flow**: Canonical editor changes go through the action pipeline (`actionManager` / `dispatch`) — not ad-hoc shortcuts that bypass established scene updates (see `docs/memory/systemPatterns.md` for the App → ActionManager → Store path).
+2. **Rendering**: Features still use the canvas pipeline (`renderScene` and related code); no new React-DOM drawing layers or replacement canvas stacks (react-konva, fabric.js, pixi.js).
+3. **Commands**: From the repo root, run `yarn test:typecheck`. For edits under `packages/excalidraw/**`, also run targeted Vitest or `yarn test:app --watch=false` covering the touched behavior.
+4. **Dependencies**: Before adding or upgrading an npm dependency, confirm approval and search `packages/utils/` (and existing helpers) for an in-repo alternative.

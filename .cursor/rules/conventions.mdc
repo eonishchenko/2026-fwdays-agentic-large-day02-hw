@@ -23,3 +23,10 @@ alwaysApply: false
 
 - kebab-case for files: `element-utils.ts`
 - PascalCase for components: `LayerUI.tsx`
+
+## How to verify
+
+1. **Types**: `yarn test:typecheck` — project uses strict TypeScript; avoid `any` and `@ts-ignore` unless there is an agreed exception.
+2. **Lint and format**: `yarn test:code` (ESLint, zero warnings) and `yarn test:other` (Prettier `--list-different`); use `yarn fix` to auto-fix where possible.
+3. **Exports and files**: New components use **named exports** and match **PascalCase** file names; utilities stay **kebab-case** — a quick review or `rg 'default export'` on touched files catches mistakes.
+4. **Tests**: Where the convention calls for colocated tests, ensure `ComponentName.test.tsx` exists, passes, and follows existing patterns in the same package.
