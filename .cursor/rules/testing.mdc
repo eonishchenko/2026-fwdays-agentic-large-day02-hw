@@ -1,22 +1,57 @@
 ---
-description: "Короткий опис — коли застосовувати"
-globs: "packages/**/*.ts"
+description: "Як писати й запускати тести в монорепі Excalidraw (Vitest, снапшоти, CI)"
+globs: "**/*.{test,spec}.{ts,tsx},**/tests/**/*.{ts,tsx},vitest.config.mts,setupTests.ts"
 alwaysApply: false
 ---
 
-# Назва правила
+# Тестування проєкту
 
 ## Context
 
-Чому це правило існує. Яку проблему вирішує.
+Монорепа використовує **Vitest** з **jsdom**, глобальними матчерами (`globals: true`) і єдиним `setupTests.ts` для моків (canvas, шрифти, `throttleRAF`, IndexedDB тощо). Багато інтеграційних тестів редактора покладаються на **снапшоти** (`toMatchSnapshot`) і хелпери з `packages/excalidraw/tests/`. Правила узгоджують очікування CI (`test:all`) і уникнення хрупких або неперевірених змін.
 
 ## Rule
 
-- Конкретна інструкція 1
-- Конкретна інструкція 2
-- NEVER / DO NOT / AVOID інструкції
+### Інфраструктура
+
+- Конфіг: корінь репозиторію — `vitest.config.mts` (alias `@excalidraw/*` як у `tsconfig`), `setupFiles: ["./setupTests.ts"]`.
+- Типи для тестів: `vitest/globals`, `@testing-library/jest-dom` (див. `tsconfig.json`).
+- Нові глобальні моки або зміни в `setupTests.ts` можуть вплинути на **всі** тести — змінюй обережно й проганяй повний прогін.
+
+### Команди (з кореня монорепи)
+
+- **`yarn test`** / **`yarn test:app`** — Vitest (типово з watch).
+- **`yarn test:update`** — оновлення снапшотів і вихід без watch (`--update --watch=false`). Використовуй лише коли навмисно змінюєш очікуваний вивід; переглядай diff снапшотів.
+- **`yarn test:all`** — повна перевірка як у агрегованому CI: `test:typecheck` → `test:code` (ESLint) → `test:other` (Prettier `--list-different`) → `test:app --watch=false`.
+- **`yarn test:typecheck`** — `tsc` по проєкту.
+- **`yarn test:coverage`** — покриття з порогами з `vitest.config.mts` (`coverage.thresholds`).
+
+Перед комітом змін у коді або тестах бажано мінімум: **`yarn test:typecheck`** і релевантний прогін Vitest; для широких змін — **`yarn test:all`**.
+
+### Де класти тести
+
+- Колокація: **`ComponentName.test.tsx`** поруч із компонентом (див. conventions).
+- Пакети: `packages/*/tests/`, інколи `src/__tests__/`; додаток: `excalidraw-app/tests/`.
+- Інтеграційні тести Excalidraw: хелпери **`packages/excalidraw/tests/helpers/`** (`api`, UI, моки), **`packages/excalidraw/tests/test-utils`**.
+
+### Практики написання
+
+- Оновлення React-стану в тестах має бути узгоджене з **`act()`** там, де це потрібно; ігнорування попереджень `act()` ускладнює діагностику (див. перехоплення `console.error` у `setupTests.ts`).
+- Для сценаріїв редактора використовуй наявні абстракції (**`API`**, **`Pointer`**, **`render`** / **`fireEvent`** з test-utils), щоб не дублювати низькорівневу ініціалізацію.
+- Снапшоти (`toMatchSnapshot`) — частина контракту регресійних тестів; змінюй їх лише разом із осмисленою зміною поведінки й переглядом згенерованих файлів.
+- **НЕ** вимикай тести й **НЕ** ослаблюй ESLint/Prettier лише щоб «пройшло CI», якщо це не узгоджене виправлення конфігурації.
+
+### Захищені файли та ризикові зміни
+
+- Зміни в файлах з **`do-not-touch`** (наприклад `renderer.ts`, `restore.ts`, `manager.ts`, `types.ts`) вимагають повного розуміння залежностей, **`yarn test:all`** і ручної перевірки — не обмежуйся лише локальним піднабором тестів без потреби.
+
+### Покриття
+
+- Увімкнене coverage має пороги в `vitest.config.mts`; при додаванні критичного коду варто перевіряти покриття там, де це доречно (`yarn test:coverage`).
 
 ## How to verify
 
-1. Крок перевірки 1
-2. Крок перевірки 2
+1. Після змін у коді або тестах: `yarn test:typecheck`.
+2. Прогін тестів: `yarn test:app --watch=false` (або вузький фільтр Vitest за файлом/назвою, якщо зміна локальна).
+3. Якщо оновлювались снапшоти: `yarn test:update` лише навмисно, потім переглянути git diff снапшотів.
+4. Перед великим PR або змінами в core: `yarn test:all`.
